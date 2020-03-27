@@ -11,6 +11,8 @@ namespace ParticleSystemStarter
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        ParticleSystem particleSystem;
+        Texture2D particleTexture;
 
         public Game1()
         {
@@ -41,6 +43,10 @@ namespace ParticleSystemStarter
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
+            particleTexture = Content.Load<Texture2D>("particle");
+            particleSystem = new ParticleSystem(this.GraphicsDevice, 1000, particleTexture);
+            particleSystem.Emitter = new Vector2(100, 100);
+            particleSystem.SpawnPerFrame = 4;
         }
 
         /// <summary>
@@ -63,6 +69,7 @@ namespace ParticleSystemStarter
                 Exit();
 
             // TODO: Add your update logic here
+            particleSystem.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -76,7 +83,7 @@ namespace ParticleSystemStarter
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
-
+            particleSystem.Draw();
             base.Draw(gameTime);
         }
     }

@@ -9,20 +9,23 @@ using Microsoft.Xna.Framework.Graphics;
 namespace ParticleSystemStarter
 {
     /// <summary>
+    /// Represts a particle system for the sparkle effect
+    /// </summary>
+    /// 
+    /// <summary>
     /// A delegate for spawning particles
     /// </summary>
     /// <param name="particle">The particle to spawn</param>
-    public delegate void ParticleSpawner(ref Particle particle);
+    public delegate void SparkleSpawner(ref Particle particle);
 
     /// <summary>
     /// A delegate for updating particles
     /// </summary>
     /// <param name="deltaT">The seconds elapsed between frames</param>
     /// <param name="particle">The particle to update</param>
-    public delegate void ParticleUpdater(float deltaT, ref Particle particle);
-    public class ParticleSystem
+    public delegate void SparkleUpdater(float deltaT, ref Particle particle);
+    public class SparkleSystem
     {
-
         /// <summary>
         /// The collection of particles 
         /// </summary>
@@ -61,75 +64,37 @@ namespace ParticleSystemStarter
         /// <summary>
         /// Holds a delegate to use when spawning a new particle
         /// </summary>
-        public ParticleSpawner SpawnParticle { get; set; }
+        public ParticleSpawner SpawnSparkle { get; set; }
 
         /// <summary>
         /// Holds a delegate to use when updating a particle 
         /// </summary>
         /// <param name="particle"></param>
-        public ParticleUpdater UpdateParticle { get; set; }
+        public ParticleUpdater UpdateSparkle { get; set; }
 
-
-        public ParticleSystem(GraphicsDevice graphicsDevice, int size, Texture2D texture)
+        /// <summary>
+        /// Constructs a new particle engine 
+        /// </summary>
+        /// <param name="graphicsDevice">The graphics device</param>
+        /// <param name="size">The maximum number of particles in the system</param>
+        /// <param name="texture">The texture of the particles</param> 
+        public SparkleSystem(GraphicsDevice graphicsDevice, int size, Texture2D texture)
         {
             this.particles = new Particle[size];
             this.spriteBatch = new SpriteBatch(graphicsDevice);
             this.texture = texture;
         }
 
-        /// <summary> 
-        /// Updates the particle system, spawining new particles and 
-        /// moving all live particles around the screen 
-        /// </summary>
-        /// <param name="gameTime">A structure representing time in the game</param>
-        //public void Update(GameTime gameTime)
-        //{
-        //    // Part 1: Spawn Particles
-        //    for (int i = 0; i < SpawnPerFrame; i++)
-        //    {
-        //        // TODO: Spawn Particle at nextIndex
-        //        // Create the particle
-        //        particles[nextIndex].Position = Emitter;
-        //        particles[nextIndex].Velocity = 100 * new Vector2((float)random.NextDouble(), (float)random.NextDouble());
-        //        particles[nextIndex].Acceleration = 0.1f * new Vector2((float)random.NextDouble(), (float)random.NextDouble());
-        //        particles[nextIndex].Color = Color.White;
-        //        particles[nextIndex].Scale = 1f;
-        //        particles[nextIndex].Life = 3.0f;
-        //        // Advance the index 
-        //        nextIndex++;
-        //        if (nextIndex > particles.Length - 1) nextIndex = 0;
-        //    }
-        //    // Part 2: Update Particles
-        //    float deltaT = (float)gameTime.ElapsedGameTime.TotalSeconds;
-        //    for (int i = 0; i < particles.Length; i++)
-        //    {
-        //        // Skip any "dead" particles
-        //        if (particles[i].Life <= 0) continue;
-
-        //        // TODO: Update the individual particles
-        //        particles[i].Velocity += deltaT * particles[i].Acceleration;
-        //        particles[i].Position += deltaT * particles[i].Velocity;
-        //        particles[i].Life -= deltaT;
-
-        //    }
-
-        //}
-
-        /// <summary> 
-        /// Updates the particle system, spawining new particles and 
-        /// moving all live particles around the screen 
-        /// </summary>
-        /// <param name="gameTime">A structure representing time in the game</param>
         public void Update(GameTime gameTime)
         {
             // Make sure our delegate properties are set
-            if (SpawnParticle == null || UpdateParticle == null) return;
+            if (SpawnSparkle == null || UpdateSparkle == null) return;
 
             // Part 1: Spawn new particles 
             for (int i = 0; i < SpawnPerFrame; i++)
             {
                 // Create the particle
-                SpawnParticle(ref particles[nextIndex]);
+                SpawnSparkle(ref particles[nextIndex]);
 
                 // Advance the index 
                 nextIndex++;
@@ -144,17 +109,13 @@ namespace ParticleSystemStarter
                 if (particles[i].Life <= 0) continue;
 
                 // Update the individual particle
-                UpdateParticle(deltaT, ref particles[i]);
+                UpdateSparkle(deltaT, ref particles[i]);
             }
         }
 
-
-        /// <summary>
-        /// Draw the active particles in the particle system
-        /// </summary>
         public void Draw()
         {
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive);
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
 
             // TODO: Draw particles
             // Iterate through the particles

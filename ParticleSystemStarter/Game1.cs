@@ -16,6 +16,8 @@ namespace ParticleSystemStarter
         ParticleSystem particleSystem;
         Texture2D particleTexture;
         Random random = new Random();
+        SparkleSystem sparkleSystem;
+        Texture2D sparkleTexture;
 
         public Game1()
         {
@@ -50,7 +52,6 @@ namespace ParticleSystemStarter
             particleSystem = new ParticleSystem(this.GraphicsDevice, 1000, particleTexture);
             //particleSystem.Emitter = new Vector2(0, 0);
             particleSystem.SpawnPerFrame = 4;
-            // Set the SpawnParticle method
             particleSystem.SpawnParticle = (ref Particle particle) =>
             {
                 MouseState mouse = Mouse.GetState();
@@ -67,6 +68,33 @@ namespace ParticleSystemStarter
 
             // Set the UpdateParticle method
             particleSystem.UpdateParticle = (float deltaT, ref Particle particle) =>
+            {
+                particle.Velocity += deltaT * particle.Acceleration;
+                particle.Position += deltaT * particle.Velocity;
+                particle.Scale -= deltaT;
+                particle.Life -= deltaT;
+            };
+
+
+            sparkleTexture = Content.Load<Texture2D>("star");
+            sparkleSystem = new SparkleSystem(this.GraphicsDevice, 200, sparkleTexture);
+            sparkleSystem.Emitter = new Vector2(75, 75);
+            sparkleSystem.SpawnPerFrame = 2;
+            sparkleSystem.SpawnSparkle = (ref Particle particle) =>
+            {
+                particle.Position = new Vector2(200, 200);
+                particle.Velocity = new Vector2(
+                    MathHelper.Lerp(-100, 100, (float)random.NextDouble()), // X between -50 and 50
+                    MathHelper.Lerp(-20, 0, (float)random.NextDouble()) // Y between 0 and 100
+                    );
+                particle.Acceleration = new Vector2(0, 0);
+                particle.Color = Color.Yellow;
+                particle.Scale = 0.5f;
+                particle.Life = 1f;
+            };
+
+            // Set the UpdateParticle method
+            sparkleSystem.UpdateSparkle = (float deltaT, ref Particle particle) =>
             {
                 particle.Velocity += deltaT * particle.Acceleration;
                 particle.Position += deltaT * particle.Velocity;
@@ -97,6 +125,7 @@ namespace ParticleSystemStarter
 
             // TODO: Add your update logic here
             particleSystem.Update(gameTime);
+            sparkleSystem.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -111,6 +140,7 @@ namespace ParticleSystemStarter
 
             // TODO: Add your drawing code here
             particleSystem.Draw();
+            sparkleSystem.Draw();
             base.Draw(gameTime);
         }
     }

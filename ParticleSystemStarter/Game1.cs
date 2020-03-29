@@ -18,6 +18,9 @@ namespace ParticleSystemStarter
         Random random = new Random();
         SparkleSystem sparkleSystem;
         Texture2D sparkleTexture;
+        FireSystem fireSystem;
+        Texture2D fireTexture;
+        Texture2D wood;
 
         public Game1()
         {
@@ -102,6 +105,36 @@ namespace ParticleSystemStarter
                 particle.Life -= deltaT;
             };
 
+
+
+            //FIRE
+            fireTexture = Content.Load<Texture2D>("particle");
+            fireSystem = new FireSystem(this.GraphicsDevice, 500, fireTexture);
+            fireSystem.Emitter = new Vector2(75, 75);
+            fireSystem.SpawnPerFrame = 4;
+            fireSystem.SpawnFire = (ref Particle particle) =>
+            {
+                particle.Position = new Vector2(400, 400);
+                particle.Velocity = new Vector2(
+                    MathHelper.Lerp(-25, 25, (float)random.NextDouble()), // X between -50 and 50
+                    MathHelper.Lerp(-95, 0, (float)random.NextDouble()) // Y between 0 and 100
+                    );
+                particle.Acceleration = 0.1f * new Vector2(0, (float)-random.NextDouble());
+                particle.Color = Color.MonoGameOrange;
+                particle.Scale = 1.0f;
+                particle.Life = 0.5f;
+            };
+
+            // Set the UpdateParticle method
+            fireSystem.UpdateFire = (float deltaT, ref Particle particle) =>
+            {
+                particle.Velocity += deltaT * particle.Acceleration;
+                particle.Position += deltaT * particle.Velocity;
+                particle.Scale -= deltaT;
+                particle.Life -= deltaT;
+            };
+
+            wood = Content.Load<Texture2D>("wood");
         }
 
         /// <summary>
@@ -126,6 +159,7 @@ namespace ParticleSystemStarter
             // TODO: Add your update logic here
             particleSystem.Update(gameTime);
             sparkleSystem.Update(gameTime);
+            fireSystem.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -138,9 +172,15 @@ namespace ParticleSystemStarter
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
+            spriteBatch.Begin();
+            spriteBatch.Draw(wood, new Rectangle(395, 400, 50, 50), Color.White);
+
+            spriteBatch.End();
             // TODO: Add your drawing code here
             particleSystem.Draw();
             sparkleSystem.Draw();
+            fireSystem.Draw();
+            
             base.Draw(gameTime);
         }
     }
